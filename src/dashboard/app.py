@@ -6,6 +6,17 @@ import streamlit as st
 st.set_page_config(page_title="GitHub Repository Risk Analyzer", layout="wide")
 
 st.title("GitHub Repository Risk Analyzer")
+
+st.subheader("Analyze a GitHub Repository")
+
+repo_name = st.text_input(
+    "Enter repository name (owner/repo)",
+    placeholder="facebook/react"
+)
+
+if st.button("Analyze Repository"):
+    st.info(f"Repository analysis for: {repo_name} coming soon...")
+
 st.write("Analyze repository risk scores generated from GitHub repository metadata.")
 
 data_path = Path("data/processed/repository_risk_scores.csv")
