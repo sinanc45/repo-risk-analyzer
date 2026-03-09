@@ -1,8 +1,8 @@
-from src.api.repo_fetcher import fetch_and_save_repositories
+from src.processing.prepare_repositories_dataset import prepare_repositories_dataset
 
 
 def main():
-    fetch_and_save_repositories(per_page=10)
+    prepare_repositories_dataset()
 
 
 if __name__ == "__main__":
