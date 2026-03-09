@@ -55,7 +55,7 @@ Each repository contains valuable information about how software evolves over ti
 
 ### - file modifications
 
-### pull requests
+### - pull requests
 
 ### - issues
 
