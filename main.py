@@ -1,8 +1,8 @@
-from src.features.repository_features import create_repository_features
+from src.models.risk_model import calculate_repository_risk_scores
 
 
 def main():
-    create_repository_features()
+    calculate_repository_risk_scores()
 
 
 if __name__ == "__main__":
