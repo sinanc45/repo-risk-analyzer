@@ -1,8 +1,8 @@
-from src.processing.prepare_repositories_dataset import prepare_repositories_dataset
+from src.features.repository_features import create_repository_features
 
 
 def main():
-    prepare_repositories_dataset()
+    create_repository_features()
 
 
 if __name__ == "__main__":
