@@ -45,6 +45,17 @@ The system combines several domains:
 
 The goal is to create a system that evaluates repository stability and predicts risky code areas based on historical development patterns.
 
+## 📊 Dashboard Preview
+The project includes an interactive Streamlit dashboard used to explore repository risk score.
+
+## Dashboard Overview
+
+![Dashboard Overview](assets/dashboard_overview.png)
+
+## Risk Analysis Table 
+
+![Risk Table](assets/dashboard_risk_table.png)
+
 ## Background
 
 Modern software projects generate a large amount of historical development data through version control systems like Git.
