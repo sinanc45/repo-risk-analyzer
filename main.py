@@ -1,16 +1,8 @@
-from src.api.github_client import search_repositories
+from src.api.repo_fetcher import fetch_and_save_repositories
 
 
 def main():
-    repos = search_repositories()
-
-    print("Top Python repositories:\n")
-
-    for repo in repos["items"]:
-        name = repo["full_name"]
-        stars = repo["stargazers_count"]
-
-        print(f"{name} - ⭐ {stars}")
+    fetch_and_save_repositories(per_page=10)
 
 
 if __name__ == "__main__":
