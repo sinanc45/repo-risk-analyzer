@@ -1,7 +1,19 @@
+import sys
 from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
 
 import pandas as pd
 import streamlit as st
+
+from src.api.repo_analyzer import analyze_repository
+
+
+
+
+
 
 st.set_page_config(page_title="GitHub Repository Risk Analyzer", layout="wide")
 
@@ -10,12 +22,27 @@ st.title("GitHub Repository Risk Analyzer")
 st.subheader("Analyze a GitHub Repository")
 
 repo_name = st.text_input(
-    "Enter repository name (owner/repo)",
+    label="Enter repository name (owner/repo)",
     placeholder="facebook/react"
 )
 
 if st.button("Analyze Repository"):
-    st.info(f"Repository analysis for: {repo_name} coming soon...")
+
+    result = analyze_repository(repo_name)
+
+    if result is None:
+        st.error("Repository not found")
+    else:
+        st.success("Repository analyzed successfully")
+
+        col1, col2, col3, col4, col5 = st.columns(5)
+
+        col1.metric("Stars", result["stars"])
+        col2.metric("Forks", result["forks"])
+        col3.metric("Open Issues", result["issues"])
+        col4.metric("Risk Score", result["risk_score"])
+        col5.metric("Risk Level", result["risk_level"])
+
 
 st.write("Analyze repository risk scores generated from GitHub repository metadata.")
 
