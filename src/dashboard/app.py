@@ -9,15 +9,16 @@ import pandas as pd
 import streamlit as st
 
 from src.api.repo_analyzer import analyze_repository
-
-
-
-
-
+from src.api.repository_search import search_repositories_by_keyword
 
 st.set_page_config(page_title="GitHub Repository Risk Analyzer", layout="wide")
 
 st.title("GitHub Repository Risk Analyzer")
+st.write("Analyze live public GitHub repositories with repository metadata and risk scoring.")
+
+# -------------------------------------------------
+# SINGLE REPOSITORY ANALYSIS
+# -------------------------------------------------
 
 st.subheader("Analyze a GitHub Repository")
 
@@ -27,7 +28,6 @@ repo_name = st.text_input(
 )
 
 if st.button("Analyze Repository"):
-
     with st.spinner("Analyzing repository..."):
         result = analyze_repository(repo_name)
 
@@ -48,98 +48,71 @@ if st.button("Analyze Repository"):
         st.markdown(f"**Description:** {result['description'] or 'No description available'}")
         st.markdown(f"[Open Repository]({result['repo_url']})")
 
+# -------------------------------------------------
+# KEYWORD SEARCH + LIVE RISK ANALYSIS
+# -------------------------------------------------
 
-st.write("Analyze repository risk scores generated from GitHub repository metadata.")
+st.divider()
+st.subheader("Search GitHub Repositories by Keyword")
 
-data_path = Path("data/processed/repository_risk_scores.csv")
-
-if not data_path.exists():
-    st.error("Risk score dataset not found. Run the pipeline first.")
-    st.stop()
-
-df = pd.read_csv(data_path)
-
-# ------------------------------
-# METRICS
-# ------------------------------
-
-st.subheader("Dataset Overview")
-
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Total Repositories", len(df))
-col2.metric("High Risk Repositories", (df["risk_level"] == "High").sum())
-col3.metric("Average Risk Score", round(df["risk_score"].mean(), 3))
-
-# ------------------------------
-# SEARCH
-# ------------------------------
-
-st.subheader("Search Repository")
-
-search = st.text_input("Search repository name")
-
-if search:
-    df = df[df["full_name"].str.contains(search, case=False)]
-
-# ------------------------------
-# FILTER
-# ------------------------------
-
-st.subheader("Filter Repositories")
-
-risk_levels = st.multiselect(
-    "Select risk levels",
-    options=sorted(df["risk_level"].unique()),
-    default=sorted(df["risk_level"].unique())
+keyword = st.text_input(
+    "Enter a repository name or keyword",
+    placeholder="glucotrack"
 )
 
-filtered_df = df[df["risk_level"].isin(risk_levels)]
+if st.button("Search Repositories"):
+    if not keyword.strip():
+        st.warning("Please enter a keyword")
+    else:
+        with st.spinner("Searching repositories..."):
+            repositories = search_repositories_by_keyword(keyword)
 
-# ------------------------------
-# RISK COLOR FUNCTION
-# ------------------------------
+        if not repositories:
+            st.error("No repositories found")
+        else:
+            analyzed_results = []
 
-def color_risk(val):
-    if val == "High":
-        return "background-color:#ff4b4b"
-    if val == "Medium":
-        return "background-color:#ffa500"
-    if val == "Low":
-        return "background-color:#2ecc71"
-    return ""
+            for repo in repositories:
+                risk_score = (repo["issues"] + 1) / (repo["stars"] + repo["forks"] + 1)
 
-# ------------------------------
-# TABLE
-# ------------------------------
+                if risk_score < 0.1:
+                    risk_level = "Low"
+                elif risk_score < 0.3:
+                    risk_level = "Medium"
+                else:
+                    risk_level = "High"
 
-st.subheader("Top Risky Repositories")
+                analyzed_results.append({
+                    "Repository": repo["full_name"],
+                    "Language": repo["language"] or "Unknown",
+                    "Stars": repo["stars"],
+                    "Forks": repo["forks"],
+                    "Open Issues": repo["issues"],
+                    "Risk Score": round(risk_score, 4),
+                    "Risk Level": risk_level,
+                    "Description": repo["description"] or "No description available",
+                    "Repository URL": repo["repo_url"]
+                })
 
-display_df = filtered_df[
-    [
-        "full_name",
-        "language",
-        "stargazers_count",
-        "forks_count",
-        "open_issues_count",
-        "risk_score",
-        "risk_level",
-        "html_url",
-    ]
-]
+            results_df = pd.DataFrame(analyzed_results)
 
-styled_df = display_df.style.applymap(color_risk, subset=["risk_level"])
+            st.success(f"Found {len(results_df)} repositories for '{keyword}'")
 
-st.dataframe(styled_df, use_container_width=True)
+            st.subheader("Repository Search Results")
+            st.data_editor(
+                results_df,
+                use_container_width=True,
+                hide_index=True,
+                disabled=True,
+                column_config={
+                    "Repository URL": st.column_config.LinkColumn(
+                        "Repository URL",
+                        display_text="Open Repository"
+                    )
+                }
+            )
 
-# ------------------------------
-# GRAPH
-# ------------------------------
+            st.subheader("Top 10 Highest Risk Scores from Search Results")
+            chart_df = results_df.sort_values(by="Risk Score", ascending=False).head(10)
+            st.bar_chart(chart_df.set_index("Repository")["Risk Score"])
 
-st.subheader("Top 10 Highest Risk Scores")
-
-top10 = filtered_df.sort_values(by="risk_score", ascending=False).head(10)
-
-chart_df = top10.set_index("full_name")["risk_score"]
-
-st.bar_chart(chart_df)
