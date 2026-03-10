@@ -28,7 +28,8 @@ repo_name = st.text_input(
 
 if st.button("Analyze Repository"):
 
-    result = analyze_repository(repo_name)
+    with st.spinner("Analyzing repository..."):
+        result = analyze_repository(repo_name)
 
     if result is None:
         st.error("Repository not found")
@@ -42,6 +43,10 @@ if st.button("Analyze Repository"):
         col3.metric("Open Issues", result["issues"])
         col4.metric("Risk Score", result["risk_score"])
         col5.metric("Risk Level", result["risk_level"])
+
+        st.markdown(f"**Language:** {result['language']}")
+        st.markdown(f"**Description:** {result['description'] or 'No description available'}")
+        st.markdown(f"[Open Repository]({result['repo_url']})")
 
 
 st.write("Analyze repository risk scores generated from GitHub repository metadata.")

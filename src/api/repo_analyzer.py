@@ -25,6 +25,10 @@ def analyze_repository(repo_name):
     forks = data["forks_count"]
     issues = data["open_issues_count"]
 
+    description = data.get("description")
+    language = data.get("language")
+    repo_url = data.get("html_url")
+
     risk_score = (issues + 1) / (stars + forks + 1)
 
     if risk_score < 0.1:
@@ -40,6 +44,9 @@ def analyze_repository(repo_name):
         "forks": forks,
         "issues": issues,
         "risk_score": round(risk_score, 4),
-        "risk_level": risk_level
+        "risk_level": risk_level,
+        "description": description,
+        "language": language,
+        "repo_url": repo_url
     }
 
