@@ -20,11 +20,11 @@ st.write("Analyze live public GitHub repositories with repository metadata and r
 # SINGLE REPOSITORY ANALYSIS
 # -------------------------------------------------
 
-st.subheader("Analyze a GitHub Repository")
+st.subheader("🔎 Analyze a Specific Repository")
 
 repo_name = st.text_input(
-    label="Enter repository name (owner/repo)",
-    placeholder="facebook/react"
+    label="Analyze a specific repository",
+    placeholder="Enter repository in owner/repo format (e.g., owner/repository)"
 )
 
 if st.button("Analyze Repository"):
@@ -53,11 +53,11 @@ if st.button("Analyze Repository"):
 # -------------------------------------------------
 
 st.divider()
-st.subheader("Search GitHub Repositories by Keyword")
+st.subheader("🌍 Search GitHub Repositories by Keyword")
 
 keyword = st.text_input(
-    "Enter a repository name or keyword",
-    placeholder="glucotrack"
+    "Search repositories by keyword",
+    placeholder="Type a repository name or keyword to search (e.g., ai, machine learning)"
 )
 
 if st.button("Search Repositories"):
